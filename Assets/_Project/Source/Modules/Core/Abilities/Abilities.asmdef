@@ -1,0 +1,25 @@
+{
+    "name": "Abilities",
+    "rootNamespace": "AvantajPrim.Abilities",
+    "references": [
+        "Zenject",
+        "Core",
+        "Logger",
+        "LifeCycle",
+        "Abilities.Domain",
+        "Abilities.Data",
+        "Abilities.Execution",
+        "Abilities.Infrastructure",
+        "UniRx",
+        "UniTask"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

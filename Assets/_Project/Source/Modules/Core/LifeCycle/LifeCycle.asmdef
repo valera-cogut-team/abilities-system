@@ -1,0 +1,19 @@
+{
+    "name": "LifeCycle",
+    "rootNamespace": "LifeCycle",
+    "references": [
+        "Zenject",
+        "Core",
+        "Logger",
+        "UniRx"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -1,0 +1,95 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8c4f1a23e5d4a6f9c0e1d2a3b4c5d6f, type: 3}
+  m_Name: Dash
+  m_EditorClassIdentifier: Abilities.Data::AvantajPrim.Abilities.Data.AbilityConfigAsset
+  _abilityId: dash
+  _displayName: Dash
+  _hotkeySlot: 1
+  _hotkeyKey: 0
+  _targetType: 1
+  _rangeType: 0
+  _range: 5
+  _components:
+  - rid: 7037919277586579600
+  - rid: 7037919277586579601
+  - rid: 7037919277586579602
+  - rid: 7037919277586579603
+  - rid: 7037919277586579604
+  - rid: 7037919277586579605
+  references:
+    version: 2
+    RefIds:
+    - rid: 7037919277586579600
+      type: {class: LockInputComponentData, ns: AvantajPrim.Abilities.Data, asm: Abilities.Data}
+      data:
+        PlayTimeType: 0
+        DelaySeconds: 0
+        BlockMovement: 1
+        BlockRotation: 0
+    - rid: 7037919277586579601
+      type: {class: VisualFxComponentData, ns: AvantajPrim.Abilities.Data, asm: Abilities.Data}
+      data:
+        PlayTimeType: 0
+        DelaySeconds: 0
+        VfxPrefab:
+          m_AssetGUID: 8640520dbf6864e66aac28e836cae7f9
+          m_SubObjectName: 
+          m_SubObjectType: 
+          m_SubObjectGUID: 
+          m_EditorAssetChanged: 0
+        PresentationStyle: 0
+        TargetType: 0
+        DurationType: 0
+        Duration: 1
+        OffsetX: 0
+        OffsetY: 0
+        OffsetZ: 0
+    - rid: 7037919277586579602
+      type: {class: SoundComponentData, ns: AvantajPrim.Abilities.Data, asm: Abilities.Data}
+      data:
+        PlayTimeType: 0
+        DelaySeconds: 0
+        SoundClip:
+          m_AssetGUID: f7281b3dbb2da483b997db03070c0738
+          m_SubObjectName: 
+          m_SubObjectType: 
+          m_SubObjectGUID: 
+          m_EditorAssetChanged: 0
+        Volume: 1
+    - rid: 7037919277586579603
+      type: {class: AnimationComponentData, ns: AvantajPrim.Abilities.Data, asm: Abilities.Data}
+      data:
+        PlayTimeType: 0
+        DelaySeconds: 0
+        CastClip:
+          m_AssetGUID: bb6186b850404577919c74d9284188be
+          m_SubObjectName: 
+          m_SubObjectType: 
+          m_SubObjectGUID: 
+          m_EditorAssetChanged: 0
+        WaitUntilEnd: 0
+    - rid: 7037919277586579604
+      type: {class: AimComponentData, ns: AvantajPrim.Abilities.Data, asm: Abilities.Data}
+      data:
+        PlayTimeType: 0
+        DelaySeconds: 0
+        TargetType: 1
+    - rid: 7037919277586579605
+      type: {class: MovementComponentData, ns: AvantajPrim.Abilities.Data, asm: Abilities.Data}
+      data:
+        PlayTimeType: 0
+        DelaySeconds: 0
+        OffsetX: 0
+        OffsetY: 0
+        OffsetZ: 4
+        Duration: 0.25

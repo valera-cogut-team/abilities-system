@@ -1,0 +1,35 @@
+{
+    "name": "Tests.PlayMode",
+    "rootNamespace": "AvantajPrim.Tests.PlayMode",
+    "references": [
+        "Abilities",
+        "Abilities.Domain",
+        "Abilities.Data",
+        "Abilities.Execution",
+        "AbilitiesDemo",
+        "Addressables",
+        "Effects",
+        "StateMachine",
+        "Tests.Shared",
+        "Core",
+        "Logger",
+        "LifeCycle",
+        "Zenject",
+        "UniTask",
+        "UniRx"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false,
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ]
+}

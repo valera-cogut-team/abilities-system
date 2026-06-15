@@ -1,0 +1,19 @@
+{
+    "name": "Abilities.Execution",
+    "rootNamespace": "AvantajPrim.Abilities.Execution",
+    "references": [
+        "Abilities.Domain",
+        "Abilities.Data",
+        "StateMachine",
+        "UniTask"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}

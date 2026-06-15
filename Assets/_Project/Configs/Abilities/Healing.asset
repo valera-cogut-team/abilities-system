@@ -1,0 +1,97 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8c4f1a23e5d4a6f9c0e1d2a3b4c5d6f, type: 3}
+  m_Name: Healing
+  m_EditorClassIdentifier: Abilities.Data::AvantajPrim.Abilities.Data.AbilityConfigAsset
+  _abilityId: healing
+  _displayName: Healing
+  _hotkeySlot: 3
+  _hotkeyKey: 0
+  _targetType: 0
+  _rangeType: 0
+  _range: 0
+  _components:
+  - rid: 7037919277586579613
+  - rid: 7037919277586579614
+  - rid: 7037919277586579615
+  - rid: 7037919277586579616
+  - rid: 7037919277586579617
+  references:
+    version: 2
+    RefIds:
+    - rid: 7037919277586579613
+      type: {class: LockInputComponentData, ns: AvantajPrim.Abilities.Data, asm: Abilities.Data}
+      data:
+        PlayTimeType: 0
+        DelaySeconds: 0
+        BlockMovement: 1
+        BlockRotation: 0
+    - rid: 7037919277586579614
+      type: {class: VisualFxComponentData, ns: AvantajPrim.Abilities.Data, asm: Abilities.Data}
+      data:
+        PlayTimeType: 0
+        DelaySeconds: 0
+        VfxPrefab:
+          m_AssetGUID: 7c540c092ac0e414799b31ceca714e11
+          m_SubObjectName: 
+          m_SubObjectType: 
+          m_SubObjectGUID: 
+          m_EditorAssetChanged: 0
+        PresentationStyle: 1
+        TargetType: 0
+        DurationType: 1
+        Duration: 5
+        OffsetX: 0
+        OffsetY: 0
+        OffsetZ: 0
+    - rid: 7037919277586579615
+      type: {class: SoundComponentData, ns: AvantajPrim.Abilities.Data, asm: Abilities.Data}
+      data:
+        PlayTimeType: 0
+        DelaySeconds: 0
+        SoundClip:
+          m_AssetGUID: 1bd694c4cdbd5438bb704180c2bcc136
+          m_SubObjectName: 
+          m_SubObjectType: 
+          m_SubObjectGUID: 
+          m_EditorAssetChanged: 0
+        Volume: 1
+    - rid: 7037919277586579616
+      type: {class: AnimationComponentData, ns: AvantajPrim.Abilities.Data, asm: Abilities.Data}
+      data:
+        PlayTimeType: 0
+        DelaySeconds: 0
+        CastClip:
+          m_AssetGUID: dde5dc47440a743b7a2bd5dbf1553d9a
+          m_SubObjectName: 
+          m_SubObjectType: 
+          m_SubObjectGUID: 
+          m_EditorAssetChanged: 0
+        WaitUntilEnd: 0
+    - rid: 7037919277586579617
+      type: {class: StatusEffectComponentData, ns: AvantajPrim.Abilities.Data, asm: Abilities.Data}
+      data:
+        PlayTimeType: 0
+        DelaySeconds: 0
+        EffectType: 3
+        TargetType: 0
+        DurationType: 1
+        Duration: 5
+        Value: 12
+        TotalValue: 0
+        TickInterval: 1
+        AdditionalVfx:
+          m_AssetGUID: 
+          m_SubObjectName: 
+          m_SubObjectType: 
+          m_SubObjectGUID: 
+          m_EditorAssetChanged: 0

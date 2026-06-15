@@ -1,0 +1,24 @@
+{
+  "name": "EditorTools",
+  "rootNamespace": "EditorTools",
+  "includePlatforms": [
+    "Editor"
+  ],
+  "references": [
+    "Unity.Addressables",
+    "Unity.Addressables.Editor",
+    "Bootstrap",
+    "Abilities.Data",
+    "Abilities.Domain",
+    "Abilities.Execution",
+    "AbilitiesDemo",
+    "UniTask"
+  ],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

@@ -1,0 +1,160 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3d4e5f6a7b84901a2b3c4d5e6f78901, type: 3}
+  m_Name: DemoAddressableCatalog
+  m_EditorClassIdentifier: AbilitiesDemo::AvantajPrim.AbilitiesDemo.Application.DemoAddressableCatalog
+  Arena:
+    m_AssetGUID: 99c75a64ff5db4a00831a0f408b241dc
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
+  Player:
+    m_AssetGUID: 9db83658635f84bb492c0d95dab732d8
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
+  Enemy:
+    m_AssetGUID: 98dc3127c94a74f3887bfcbcabf44d00
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
+  ExtraDecor:
+  - Prefab:
+      m_AssetGUID: e289bf5debb17f6459818c207d781953
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_SubObjectGUID: 
+      m_EditorAssetChanged: 0
+    LocalPosition: {x: -8, y: 0, z: -3}
+    RotationY: 20
+    Scale: 1.1
+  - Prefab:
+      m_AssetGUID: c60edd51c065ceb46b345849a03bc106
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_SubObjectGUID: 
+      m_EditorAssetChanged: 0
+    LocalPosition: {x: 7, y: 0, z: 6}
+    RotationY: -35
+    Scale: 0.95
+  - Prefab:
+      m_AssetGUID: f0c16f0ea935ea64297ca1d4d55d9746
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_SubObjectGUID: 
+      m_EditorAssetChanged: 0
+    LocalPosition: {x: -5, y: 0, z: 7}
+    RotationY: 55
+    Scale: 1.15
+  - Prefab:
+      m_AssetGUID: 60f79905accf3b24fa0114b941f1aac0
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_SubObjectGUID: 
+      m_EditorAssetChanged: 0
+    LocalPosition: {x: 8, y: 0, z: 1}
+    RotationY: -70
+    Scale: 1.05
+  - Prefab:
+      m_AssetGUID: 3cdafb3c2f54d434894928d72d282874
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_SubObjectGUID: 
+      m_EditorAssetChanged: 0
+    LocalPosition: {x: -3, y: 0, z: -6}
+    RotationY: 10
+    Scale: 1.2
+  - Prefab:
+      m_AssetGUID: b71b0f8d2f881c743a85228f3030d1cb
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_SubObjectGUID: 
+      m_EditorAssetChanged: 0
+    LocalPosition: {x: 3, y: 0, z: -7}
+    RotationY: -15
+    Scale: 1.1
+  SoundClips:
+  - m_AssetGUID: f7281b3dbb2da483b997db03070c0738
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
+  - m_AssetGUID: 8e55bdc4cf1c648159e70995c047f243
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
+  - m_AssetGUID: 1bd694c4cdbd5438bb704180c2bcc136
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
+  - m_AssetGUID: 0042b0fa7aac5472084a1dd8d025e23c
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
+  VfxPrefabs:
+  - m_AssetGUID: 8640520dbf6864e66aac28e836cae7f9
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
+  - m_AssetGUID: 9cff75622805242f29899ff8623a470d
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
+  - m_AssetGUID: 7c540c092ac0e414799b31ceca714e11
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
+  - m_AssetGUID: 4a36d238df58948bbad0730d163c096a
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
+  - m_AssetGUID: f1e2d3c4b5a6478290abcdef12345678
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
+  - m_AssetGUID: a2b3c4d5e6f7489012345678abcdef12
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
+  CastAnimationClips:
+  - m_AssetGUID: 
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
+  - m_AssetGUID: af3a417453ff444ff8ced7f722e78224
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
+  - m_AssetGUID: dde5dc47440a743b7a2bd5dbf1553d9a
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
+  - m_AssetGUID: 983ecb1dcf2cc44b1b75dbfbdac5a700
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0

@@ -1,0 +1,23 @@
+{
+  "name": "Effects",
+  "rootNamespace": "Effects",
+  "references": [
+    "Zenject",
+    "Core",
+    "Logger",
+    "Addressables",
+    "Pool",
+    "LifeCycle",
+    "UniTask",
+    "Unity.Addressables"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

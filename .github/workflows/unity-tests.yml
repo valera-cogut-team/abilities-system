@@ -1,0 +1,63 @@
+name: Unity EditMode Tests
+
+# Disabled on push/PR until CI is configured (Tests.*.csproj in repo, UNITY_LICENSE secret).
+# Run manually: Actions → Unity EditMode Tests → Run workflow.
+on:
+  workflow_dispatch:
+
+jobs:
+  editmode-tests:
+    name: EditMode (batchmode)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Cache Library
+        uses: actions/cache@v4
+        with:
+          path: Library
+          key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: |
+            Library-
+
+      - name: Run EditMode tests
+        uses: game-ci/unity-test-runner@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        with:
+          projectPath: .
+          testMode: editmode
+          artifactsPath: TestResults
+          customParameters: -nographics -batchmode
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: EditMode-TestResults
+          path: TestResults
+
+  dotnet-build:
+    name: dotnet build (tests)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Build EditMode tests
+        run: dotnet build Tests.EditMode.csproj --no-restore 2>/dev/null || dotnet build Tests.EditMode.csproj
+
+      - name: Build PlayMode tests
+        run: dotnet build Tests.PlayMode.csproj --no-restore 2>/dev/null || dotnet build Tests.PlayMode.csproj

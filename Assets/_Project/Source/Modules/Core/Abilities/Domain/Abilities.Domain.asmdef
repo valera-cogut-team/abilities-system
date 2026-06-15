@@ -1,0 +1,16 @@
+{
+    "name": "Abilities.Domain",
+    "rootNamespace": "AvantajPrim.Abilities.Domain",
+    "references": [
+        "StateMachine"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}

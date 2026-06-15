@@ -1,0 +1,54 @@
+{
+  "modules": [
+    {
+      "name": "Logger",
+      "version": "1.0.0",
+      "dependencies": []
+    },
+    {
+      "name": "LifeCycle",
+      "version": "1.0.0",
+      "dependencies": ["Logger"]
+    },
+    {
+      "name": "Input",
+      "version": "1.0.0",
+      "dependencies": ["Logger"]
+    },
+    {
+      "name": "Addressables",
+      "version": "1.0.0",
+      "dependencies": ["Logger"]
+    },
+    {
+      "name": "StateMachine",
+      "version": "1.0.0",
+      "dependencies": ["Logger"]
+    },
+    {
+      "name": "Pool",
+      "version": "1.0.0",
+      "dependencies": ["Logger"]
+    },
+    {
+      "name": "Audio",
+      "version": "1.0.0",
+      "dependencies": ["Logger", "Addressables"]
+    },
+    {
+      "name": "Effects",
+      "version": "1.0.0",
+      "dependencies": ["Logger", "Addressables"]
+    },
+    {
+      "name": "Abilities",
+      "version": "1.0.0",
+      "dependencies": ["Logger", "LifeCycle"]
+    },
+    {
+      "name": "AbilitiesDemo",
+      "version": "1.0.0",
+      "dependencies": ["Abilities", "Input", "Addressables", "Pool", "Audio", "Effects", "LifeCycle", "Logger", "StateMachine"]
+    }
+  ]
+}

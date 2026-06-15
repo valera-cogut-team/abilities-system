@@ -1,0 +1,21 @@
+using System;
+using AvantajPrim.Abilities.Domain;
+using UnityEngine;
+using UnityEngine.AddressableAssets;
+
+namespace AvantajPrim.Abilities.Data
+{
+    [Serializable]
+    public sealed class SoundComponentData : IAbilityComponentData
+    {
+        public AbilityPlayTimeType PlayTimeType = AbilityPlayTimeType.OnStart;
+        public float DelaySeconds;
+        public AssetReferenceT<AudioClip> SoundClip;
+        public float Volume = 1f;
+
+        public string ResolveClipKey() => AddressableAssetRefUtility.GetRuntimeKey(SoundClip);
+
+        AbilityPlayTimeType IAbilityComponentData.PlayTimeType => PlayTimeType;
+        float IAbilityComponentData.DelaySeconds => DelaySeconds;
+    }
+}

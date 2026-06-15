@@ -1,0 +1,19 @@
+# Repository-wide baseline (all assets, including third-party)
+# https://editorconfig.org
+root = true
+
+[*]
+charset = utf-8-bom
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+[*.{yml,yaml,json,md}]
+trim_trailing_whitespace = false
+indent_size = 2
+
+[**/*.{unity,prefab,asset,meta,asmdef,uxml,uss,shader,compute}]
+indent_size = 2
+insert_final_newline = false

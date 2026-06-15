@@ -1,0 +1,17 @@
+{
+    "name": "Abilities.Data",
+    "rootNamespace": "AvantajPrim.Abilities.Data",
+    "references": [
+        "Abilities.Domain",
+        "Unity.Addressables"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

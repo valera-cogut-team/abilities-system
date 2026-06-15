@@ -1,0 +1,39 @@
+{
+    "name": "Tests.EditMode",
+    "rootNamespace": "AvantajPrim.Tests.EditMode",
+    "references": [
+        "Abilities",
+        "Abilities.Domain",
+        "Abilities.Data",
+        "Abilities.Execution",
+        "Abilities.Infrastructure",
+        "AbilitiesDemo",
+        "Addressables",
+        "Effects",
+        "Audio",
+        "Logger",
+        "Pool",
+        "StateMachine",
+        "Tests.Shared",
+        "UniTask",
+        "UniRx",
+        "UnityEditor",
+        "Unity.Addressables"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false,
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ]
+}

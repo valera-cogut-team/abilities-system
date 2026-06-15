@@ -1,0 +1,28 @@
+{
+  "name": "Bootstrap",
+  "rootNamespace": "Bootstrap",
+  "references": [
+    "Zenject",
+    "UniTask",
+    "Core",
+    "Logger",
+    "LifeCycle",
+    "Input",
+    "Addressables",
+    "StateMachine",
+    "Pool",
+    "Audio",
+    "Effects",
+    "Abilities",
+    "AbilitiesDemo"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

@@ -1,0 +1,19 @@
+{
+    "name": "Abilities.Infrastructure",
+    "rootNamespace": "AvantajPrim.Abilities.Infrastructure",
+    "references": [
+        "Abilities.Domain",
+        "Abilities.Execution",
+        "UniRx",
+        "UniTask"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
