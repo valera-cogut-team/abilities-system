@@ -57,6 +57,19 @@ namespace AvantajPrim.AbilitiesDemo.Presentation
 
             _bars.Clear();
             _hasCameraSnapshot = false;
+
+            // Destroy lazily-created root objects to prevent orphaned GameObjects
+            if (_floatingNumbersWorldRoot != null)
+            {
+                Object.Destroy(_floatingNumbersWorldRoot.gameObject);
+                _floatingNumbersWorldRoot = null;
+            }
+
+            if (HealthBarsCanvas != null)
+            {
+                Object.Destroy(HealthBarsCanvas.gameObject);
+                HealthBarsCanvas = null;
+            }
         }
 
         public void SetGameplayUiVisible(bool visible)

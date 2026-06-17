@@ -55,43 +55,25 @@ namespace AvantajPrim.Abilities.Execution
             AbilityId abilityId,
             EntityId casterId,
             EntityId targetId,
-            System.Threading.CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default)
         {
             if (!_catalog.TryGet(abilityId, out AbilityDefinition definition))
                 return CastAbilityResult.Fail(CastAbilityErrorCode.UnknownAbility);
-
             if (!_entities.TryGetValue(casterId, out IAbilityEntity caster))
                 return CastAbilityResult.Fail(CastAbilityErrorCode.InvalidCaster);
 
-            if (!TryOccupyTarget(targetId))
-                return CastAbilityResult.Fail(CastAbilityErrorCode.AlreadyCasting);
-
-            _entities.TryGetValue(targetId, out IAbilityEntity target);
-            BeginCastSession(casterId);
-            try
-            {
-                _activationLog.RecordCast(abilityId, casterId, new[] { targetId });
-                return await RunCastAsync(
-                    definition,
-                    abilityId,
-                    casterId,
-                    targetId,
-                    caster,
-                    target,
-                    cancellationToken);
-            }
-            finally
-            {
-                ReleaseTarget(targetId);
-                EndCastSession(casterId);
-            }
+            var singleTargetList = new[] { targetId };
+            return await ExecuteCastWithLifecycleAsync(
+                definition, abilityId, casterId, caster, singleTargetList,
+                (def, cId, caster_, ids, castId, ct) => ExecuteSingleTargetAsync(def, cId, caster_, ids, castId, ct),
+                cancellationToken);
         }
 
         public async UniTask<CastAbilityResult> CastOnTargetsAsync(
             AbilityId abilityId,
             EntityId casterId,
             IReadOnlyList<EntityId> targetIds,
-            System.Threading.CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default)
         {
             if (targetIds == null || targetIds.Count == 0)
                 return CastAbilityResult.Fail(CastAbilityErrorCode.InvalidTarget);
@@ -101,39 +83,52 @@ namespace AvantajPrim.Abilities.Execution
 
             if (!_catalog.TryGet(abilityId, out AbilityDefinition definition))
                 return CastAbilityResult.Fail(CastAbilityErrorCode.UnknownAbility);
-
             if (!_entities.TryGetValue(casterId, out IAbilityEntity caster))
                 return CastAbilityResult.Fail(CastAbilityErrorCode.InvalidCaster);
 
-            if (!TryOccupyTargets(targetIds))
+            return await ExecuteCastWithLifecycleAsync(
+                definition, abilityId, casterId, caster, targetIds,
+                ExecuteMultiTargetInternalAsync,
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Template method that handles the full lifecycle of a cast:
+        /// target occupancy → cast session → lifecycle begin → execution → phases → cleanup.
+        /// The <paramref name="executeAsync"/> delegate performs the specific execution logic
+        /// (single-target or multi-target) without duplicating lifecycle management.
+        /// </summary>
+        private async UniTask<CastAbilityResult> ExecuteCastWithLifecycleAsync(
+            AbilityDefinition definition,
+            AbilityId abilityId,
+            EntityId casterId,
+            IAbilityEntity caster,
+            IReadOnlyList<EntityId> targetIds,
+            Func<AbilityDefinition, EntityId, IAbilityEntity, IReadOnlyList<EntityId>, int, CancellationToken, UniTask> executeAsync,
+            CancellationToken cancellationToken)
+        {
+            bool isMultiTarget = targetIds.Count > 1;
+            bool targetsOccupied = isMultiTarget
+                ? TryOccupyTargets(targetIds)
+                : TryOccupyTarget(targetIds[0]);
+
+            if (!targetsOccupied)
                 return CastAbilityResult.Fail(CastAbilityErrorCode.AlreadyCasting);
 
             BeginCastSession(casterId);
             try
             {
+                _activationLog.RecordCast(abilityId, casterId, targetIds);
+                LogComponentActivations(definition, abilityId, casterId, targetIds);
+
                 int castId = 0;
                 bool executeSucceeded = false;
+
                 try
                 {
                     castId = _castLifecycle.BeginCast(abilityId, casterId);
                     NotifyPhase(abilityId, casterId, AbilityConstants.Phases.Start, castId);
-                    _activationLog.RecordCast(abilityId, casterId, targetIds);
-
-                    for (int i = 0; i < targetIds.Count; i++)
-                    {
-                        foreach (IAbilityComponentData c in definition.Components)
-                            _activationLog.Record(abilityId, casterId, targetIds[i], c.GetType().Name);
-                    }
-
-                    await _executor.ExecuteMultiTargetAsync(
-                        definition,
-                        casterId,
-                        caster,
-                        targetIds,
-                        ResolveEntity,
-                        castId,
-                        cancellationToken);
-
+                    await executeAsync(definition, casterId, caster, targetIds, castId, cancellationToken);
                     executeSucceeded = true;
                 }
                 finally
@@ -157,56 +152,52 @@ namespace AvantajPrim.Abilities.Execution
             }
             finally
             {
-                ReleaseTargets(targetIds);
+                if (isMultiTarget)
+                    ReleaseTargets(targetIds);
+                else
+                    ReleaseTarget(targetIds[0]);
+
                 EndCastSession(casterId);
+            }
+        }
+
+        private async UniTask ExecuteSingleTargetAsync(
+            AbilityDefinition definition,
+            EntityId casterId,
+            IAbilityEntity caster,
+            IReadOnlyList<EntityId> targetIds,
+            int castId,
+            CancellationToken cancellationToken)
+        {
+            EntityId targetId = targetIds[0];
+            _entities.TryGetValue(targetId, out IAbilityEntity target);
+
+            var context = new AbilityExecutionContext(definition.Id, casterId, targetId, caster, target, castId);
+            await _executor.ExecuteAsync(definition, context, cancellationToken);
+        }
+
+        private async UniTask ExecuteMultiTargetInternalAsync(
+            AbilityDefinition definition,
+            EntityId casterId,
+            IAbilityEntity caster,
+            IReadOnlyList<EntityId> targetIds,
+            int castId,
+            CancellationToken cancellationToken)
+        {
+            await _executor.ExecuteMultiTargetAsync(definition, casterId, caster, targetIds, ResolveEntity, castId, cancellationToken);
+        }
+
+        private void LogComponentActivations(AbilityDefinition definition, AbilityId abilityId, EntityId casterId, IReadOnlyList<EntityId> targetIds)
+        {
+            for (int i = 0; i < targetIds.Count; i++)
+            {
+                foreach (IAbilityComponentData c in definition.Components)
+                    _activationLog.Record(abilityId, casterId, targetIds[i], c.GetType().Name);
             }
         }
 
         private IAbilityEntity ResolveEntity(EntityId id) =>
             _entities.TryGetValue(id, out IAbilityEntity entity) ? entity : null;
-
-        private async UniTask<CastAbilityResult> RunCastAsync(
-            AbilityDefinition definition,
-            AbilityId abilityId,
-            EntityId casterId,
-            EntityId targetId,
-            IAbilityEntity caster,
-            IAbilityEntity target,
-            System.Threading.CancellationToken cancellationToken)
-        {
-            int castId = 0;
-            bool executeSucceeded = false;
-            try
-            {
-                castId = _castLifecycle.BeginCast(abilityId, casterId);
-                NotifyPhase(abilityId, casterId, AbilityConstants.Phases.Start, castId);
-
-                var context = new AbilityExecutionContext(abilityId, casterId, targetId, caster, target, castId);
-                foreach (IAbilityComponentData c in definition.Components)
-                    _activationLog.Record(abilityId, casterId, targetId, c.GetType().Name);
-
-                await _executor.ExecuteAsync(definition, context, cancellationToken);
-                executeSucceeded = true;
-            }
-            finally
-            {
-                if (castId > 0)
-                {
-                    _castLifecycle.MarkExecutionFinished(castId);
-                    NotifyPhase(abilityId, casterId, AbilityConstants.Phases.End, castId);
-                    if (!executeSucceeded)
-                        _castLifecycle.ForceComplete(castId);
-                }
-            }
-
-            if (castId > 0)
-            {
-                await WaitForCastCompletionAsync(castId, cancellationToken);
-                NotifyPhase(abilityId, casterId, AbilityConstants.Phases.Complete, castId);
-            }
-
-            return CastAbilityResult.Ok();
-        }
 
         private async UniTask WaitForCastCompletionAsync(int castId, CancellationToken cancellationToken)
         {
@@ -252,13 +243,9 @@ namespace AvantajPrim.Abilities.Execution
         private void BeginCastSession(EntityId casterId)
         {
             if (!_activeCastSessionsByCaster.TryGetValue(casterId, out int count))
-            {
                 _activeCastSessionsByCaster[casterId] = 1;
-            }
             else
-            {
                 _activeCastSessionsByCaster[casterId] = count + 1;
-            }
         }
 
         private void EndCastSession(EntityId casterId)

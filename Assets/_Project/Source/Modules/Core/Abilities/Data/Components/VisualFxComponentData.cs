@@ -1,5 +1,6 @@
 using System;
 using AvantajPrim.Abilities.Domain;
+using UnityEngine;
 using UnityEngine.AddressableAssets;
 
 namespace AvantajPrim.Abilities.Data
@@ -17,10 +18,12 @@ namespace AvantajPrim.Abilities.Data
         public float OffsetX;
         public float OffsetY;
         public float OffsetZ;
+        [SerializeField] private bool _isCasterScoped;
 
         public string ResolveVfxKey() => AddressableAssetRefUtility.GetRuntimeKey(VfxPrefab);
 
         AbilityPlayTimeType IAbilityComponentData.PlayTimeType => PlayTimeType;
         float IAbilityComponentData.DelaySeconds => DelaySeconds;
+        bool IAbilityComponentData.IsCasterScoped => _isCasterScoped;
     }
 }

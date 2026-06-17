@@ -2,6 +2,7 @@ using System;
 using AvantajPrim.Abilities.Data;
 using AvantajPrim.Abilities.Domain;
 using AvantajPrim.Abilities.Domain.Ports;
+using Cysharp.Threading.Tasks;
 using StateMachine.Facade;
 
 namespace AvantajPrim.Abilities.Execution.Executors
@@ -10,18 +11,18 @@ namespace AvantajPrim.Abilities.Execution.Executors
     {
         public Type DataType => typeof(AnimationComponentData);
 
-        public void Execute(
+        public UniTask ExecuteAsync(
             IAbilityComponentData data,
             AbilityExecutionContext context,
             IAbilityPresentationPort presentation,
             IEntityStatePort entityState)
         {
             if (data is not AnimationComponentData d)
-                return;
+                return UniTask.CompletedTask;
 
             string animationName = d.ResolveAnimationName();
             if (string.IsNullOrEmpty(animationName))
-                return;
+                return UniTask.CompletedTask;
 
             entityState.TryTransition(
                 context.CasterId,
@@ -31,6 +32,8 @@ namespace AvantajPrim.Abilities.Execution.Executors
                 context.CasterId,
                 animationName,
                 d.WaitUntilEnd));
+
+            return UniTask.CompletedTask;
         }
     }
 }

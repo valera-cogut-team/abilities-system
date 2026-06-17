@@ -23,7 +23,7 @@ namespace AvantajPrim.Tests.EditMode.Unit
             string expectedKey = data.ResolveVfxKey();
             Assume.That(!string.IsNullOrEmpty(expectedKey), "VFX dash addressable entry is required for this test.");
 
-            executor.Execute(data, context, presentation, null);
+            executor.ExecuteAsync(data, context, presentation, null).GetAwaiter().GetResult();
 
             Assert.AreEqual(1, presentation.VfxIntents.Count);
             Assert.AreEqual(casterId, presentation.VfxIntents[0].TargetId);
@@ -42,7 +42,7 @@ namespace AvantajPrim.Tests.EditMode.Unit
             string expectedKey = data.ResolveVfxKey();
             Assume.That(!string.IsNullOrEmpty(expectedKey), "VFX dash addressable entry is required for this test.");
 
-            executor.Execute(data, context, presentation, null);
+            executor.ExecuteAsync(data, context, presentation, null).GetAwaiter().GetResult();
 
             Assert.AreEqual(1, presentation.VfxIntents.Count);
             Assert.AreEqual(targetId, presentation.VfxIntents[0].TargetId);

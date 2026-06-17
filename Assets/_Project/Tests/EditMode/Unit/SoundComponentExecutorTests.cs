@@ -21,7 +21,7 @@ namespace AvantajPrim.Tests.EditMode.Unit
             string expectedKey = data.ResolveClipKey();
             Assume.That(!string.IsNullOrEmpty(expectedKey), "SFX dash addressable entry is required for this test.");
 
-            executor.Execute(data, context, presentation, null);
+            executor.ExecuteAsync(data, context, presentation, null).GetAwaiter().GetResult();
 
             Assert.AreEqual(1, presentation.SoundIntents.Count);
             Assert.AreEqual(expectedKey, presentation.SoundIntents[0].ClipKey);

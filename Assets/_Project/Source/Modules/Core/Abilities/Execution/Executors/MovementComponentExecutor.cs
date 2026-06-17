@@ -3,6 +3,7 @@ using AvantajPrim.Abilities.Data;
 using AvantajPrim.Abilities.Execution;
 using AvantajPrim.Abilities.Domain;
 using AvantajPrim.Abilities.Domain.Ports;
+using Cysharp.Threading.Tasks;
 using StateMachine.Facade;
 
 namespace AvantajPrim.Abilities.Execution.Executors
@@ -18,14 +19,14 @@ namespace AvantajPrim.Abilities.Execution.Executors
 
         public Type DataType => typeof(MovementComponentData);
 
-        public void Execute(
+        public UniTask ExecuteAsync(
             IAbilityComponentData data,
             AbilityExecutionContext context,
             IAbilityPresentationPort presentation,
             IEntityStatePort entityState)
         {
             if (data is not MovementComponentData d)
-                return;
+                return UniTask.CompletedTask;
 
             var payload = new DisplacementTransitionPayload(
                 d.OffsetX,
@@ -39,7 +40,7 @@ namespace AvantajPrim.Abilities.Execution.Executors
                 entityState.TryTransition(context.CasterId, AbilityStatePaths.LocomotionIdle, transition);
 
             if (!entityState.TryTransition(context.CasterId, AbilityStatePaths.LocomotionDisplaced, transition))
-                return;
+                return UniTask.CompletedTask;
 
             if (context.CastLifecycleId > 0 && d.Duration > 0f)
                 _lifecycle.RegisterPendingEffect(context.CastLifecycleId);
@@ -50,6 +51,7 @@ namespace AvantajPrim.Abilities.Execution.Executors
                 d.OffsetY,
                 d.OffsetZ,
                 d.Duration));
+            return UniTask.CompletedTask;
         }
     }
 }

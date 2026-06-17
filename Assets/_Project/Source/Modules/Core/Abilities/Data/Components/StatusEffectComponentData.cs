@@ -1,5 +1,6 @@
 using System;
 using AvantajPrim.Abilities.Domain;
+using UnityEngine;
 using UnityEngine.AddressableAssets;
 
 namespace AvantajPrim.Abilities.Data
@@ -17,10 +18,12 @@ namespace AvantajPrim.Abilities.Data
         public float TotalValue;
         public float TickInterval = AbilityConstants.Execution.DefaultStatusTickIntervalSeconds;
         public AssetReferenceGameObject AdditionalVfx;
+        [SerializeField] private bool _isCasterScoped;
 
         public string ResolveAdditionalVfxKey() => AddressableAssetRefUtility.GetRuntimeKey(AdditionalVfx);
 
         AbilityPlayTimeType IAbilityComponentData.PlayTimeType => PlayTimeType;
         float IAbilityComponentData.DelaySeconds => DelaySeconds;
+        bool IAbilityComponentData.IsCasterScoped => _isCasterScoped;
     }
 }

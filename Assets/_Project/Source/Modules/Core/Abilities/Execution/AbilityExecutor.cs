@@ -111,9 +111,7 @@ namespace AvantajPrim.Abilities.Execution
             }
         }
 
-        private static bool IsCasterScoped(IAbilityComponentData data) =>
-            data is LockInputComponentData or AnimationComponentData or SoundComponentData
-                or MovementComponentData or AimComponentData;
+        private static bool IsCasterScoped(IAbilityComponentData data) => data.IsCasterScoped;
 
         private async UniTask RunTargetComponentsParallel(
             IReadOnlyList<IAbilityComponentData> components,
@@ -280,7 +278,7 @@ namespace AvantajPrim.Abilities.Execution
             if (!_registry.TryResolve(data, out IAbilityComponentExecutor executor))
                 return;
 
-            executor.Execute(data, context, _presentation, _entityState);
+            await executor.ExecuteAsync(data, context, _presentation, _entityState);
 
             if (data is AnimationComponentData animationData &&
                 animationData.WaitUntilEnd &&

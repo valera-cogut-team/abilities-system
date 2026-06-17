@@ -6,6 +6,11 @@ using StateMachine.Facade;
 
 namespace StateMachine.Application
 {
+    /// <summary>
+    /// Thread-safe hierarchical state machine runtime.
+    /// All state mutations happen inside a lock, but OnEnter/OnExit/OnUpdate callbacks
+    /// are invoked OUTSIDE the lock to prevent deadlocks when callbacks trigger nested transitions.
+    /// </summary>
     internal sealed class StateMachineRuntime : IStateMachineRuntime
     {
         private readonly StateMachineDefinition _definition;
@@ -31,13 +36,27 @@ namespace StateMachine.Application
             _stream = new SafeStream<StateTransitionEvent>(ex =>
                 _logger?.LogError($"StateMachine runtime stream error: {ex.Message}", ex));
 
+            // Create region runtimes first WITHOUT invoking callbacks
+            var initialCallbacks = new List<Action>(regions.Count);
             foreach (RegionDefinition region in regions)
             {
                 RegionRuntime runtime = region.Kind == RegionKind.Exclusive
                     ? (RegionRuntime)new ExclusiveRegionRuntime(region, this)
                     : new ParallelRegionRuntime(region, this);
                 _regionRuntimes[region.Name] = runtime;
+
+                // Collect initial OnEnter callbacks
+                if (runtime is ExclusiveRegionRuntime exclusive)
+                {
+                    Action<StateMachineRuntime> initCallback = exclusive.GetInitialEnterCallback();
+                    if (initCallback != null)
+                        initialCallbacks.Add(() => initCallback(this));
+                }
             }
+
+            // Invoke initial callbacks OUTSIDE the lock
+            foreach (Action callback in initialCallbacks)
+                callback();
         }
 
         public IObservable<StateTransitionEvent> TransitionStream => _stream;
@@ -75,17 +94,25 @@ namespace StateMachine.Application
 
         public bool TryTransition(StatePath to, in TransitionContext context = default)
         {
+            Action<StateMachineRuntime> onEnterCallback = null;
+            Action<StateMachineRuntime> onExitCallback = null;
             StateTransitionEvent? evt = null;
+
             lock (_lock)
             {
                 if (_disposed || !_regionRuntimes.TryGetValue(to.Region, out RegionRuntime region))
                     return false;
 
-                if (!region.TryTransition(to, context, this, out StateTransitionEvent transitionEvent))
+                if (!region.TryTransition(to, context, this, out StateTransitionEvent transitionEvent,
+                    out onExitCallback, out onEnterCallback))
                     return false;
 
                 evt = transitionEvent;
             }
+
+            // Invoke callbacks OUTSIDE lock to prevent deadlock
+            onExitCallback?.Invoke(this);
+            onEnterCallback?.Invoke(this);
 
             if (evt.HasValue)
                 _stream.Publish(evt.Value);
@@ -94,7 +121,9 @@ namespace StateMachine.Application
 
         public bool TryDeactivate(StatePath path, in TransitionContext context = default)
         {
+            Action<StateMachineRuntime> onExitCallback = null;
             StateTransitionEvent? evt = null;
+
             lock (_lock)
             {
                 if (_disposed || !_regionRuntimes.TryGetValue(path.Region, out RegionRuntime region))
@@ -103,11 +132,15 @@ namespace StateMachine.Application
                 if (region is not ParallelRegionRuntime parallel)
                     return false;
 
-                if (!parallel.TryDeactivate(path, context, this, out StateTransitionEvent transitionEvent))
+                if (!parallel.TryDeactivate(path, context, this, out StateTransitionEvent transitionEvent,
+                    out onExitCallback))
                     return false;
 
                 evt = transitionEvent;
             }
+
+            // Invoke callbacks OUTSIDE lock to prevent deadlock
+            onExitCallback?.Invoke(this);
 
             if (evt.HasValue)
                 _stream.Publish(evt.Value);
@@ -119,14 +152,23 @@ namespace StateMachine.Application
             if (deltaTime <= 0f)
                 return;
 
+            List<Action<StateMachineRuntime>> tickCallbacks = null;
             List<StateTransitionEvent> events = null;
+
             lock (_lock)
             {
                 if (_disposed)
                     return;
 
                 foreach (RegionRuntime region in _regionRuntimes.Values)
-                    region.Tick(deltaTime, this, ref events);
+                    region.Tick(deltaTime, this, ref tickCallbacks, ref events);
+            }
+
+            // Invoke tick (OnUpdate) callbacks OUTSIDE lock
+            if (tickCallbacks != null)
+            {
+                foreach (Action<StateMachineRuntime> callback in tickCallbacks)
+                    callback(this);
             }
 
             if (events == null)
@@ -173,6 +215,10 @@ namespace StateMachine.Application
             return region.GetNode(path);
         }
 
+        /// <summary>
+        /// Abstract base for region runtimes.
+        /// Callback actions are returned as out parameters and invoked outside the lock.
+        /// </summary>
         private abstract class RegionRuntime
         {
             protected readonly RegionDefinition _regionDefinition;
@@ -189,8 +235,11 @@ namespace StateMachine.Application
                 StatePath to,
                 TransitionContext context,
                 StateMachineRuntime runtime,
-                out StateTransitionEvent transitionEvent);
-            public abstract void Tick(float deltaTime, StateMachineRuntime runtime, ref List<StateTransitionEvent> events);
+                out StateTransitionEvent transitionEvent,
+                out Action<StateMachineRuntime> onExitCallback,
+                out Action<StateMachineRuntime> onEnterCallback);
+            public abstract void Tick(float deltaTime, StateMachineRuntime runtime,
+                ref List<Action<StateMachineRuntime>> tickCallbacks, ref List<StateTransitionEvent> events);
             public StateNodeDefinition GetNode(StatePath path) =>
                 _regionDefinition.States.TryGetValue(path.Full, out StateNodeDefinition node) ? node : null;
         }
@@ -198,14 +247,23 @@ namespace StateMachine.Application
         private sealed class ExclusiveRegionRuntime : RegionRuntime
         {
             private StatePath _current;
+            private Action<StateMachineRuntime> _initialEnterCallback;
 
             public ExclusiveRegionRuntime(RegionDefinition definition, StateMachineRuntime runtime)
                 : base(definition)
             {
                 _current = definition.Initial;
                 StateNodeDefinition node = GetNode(_current);
-                node?.OnEnter?.Invoke(runtime, TransitionContext.Empty);
+                // Store the callback for later invocation outside the lock
+                if (node?.OnEnter != null)
+                {
+                    Action<IStateMachineRuntime, TransitionContext> handler = node.OnEnter;
+                    _initialEnterCallback = (rt) => handler(rt, TransitionContext.Empty);
+                }
             }
+
+            /// <summary>Returns the initial OnEnter callback to be invoked outside the lock.</summary>
+            public Action<StateMachineRuntime> GetInitialEnterCallback() => _initialEnterCallback;
 
             public override void CollectActiveStates(List<StatePath> target) => target.Add(_current);
 
@@ -224,23 +282,50 @@ namespace StateMachine.Application
                 StatePath to,
                 TransitionContext context,
                 StateMachineRuntime runtime,
-                out StateTransitionEvent transitionEvent)
+                out StateTransitionEvent transitionEvent,
+                out Action<StateMachineRuntime> onExitCallback,
+                out Action<StateMachineRuntime> onEnterCallback)
             {
                 transitionEvent = default;
+                onExitCallback = null;
+                onEnterCallback = null;
+
                 if (!CanTransition(to, context, runtime))
                     return false;
 
                 StatePath from = _current;
-                GetNode(from)?.OnExit?.Invoke(runtime, context);
+                StateNodeDefinition fromNode = GetNode(from);
+                StateNodeDefinition toNode = GetNode(to);
+
+                // Capture callbacks for invocation OUTSIDE the lock
+                if (fromNode?.OnExit != null)
+                {
+                    Action<IStateMachineRuntime, TransitionContext> handler = fromNode.OnExit;
+                    onExitCallback = (rt) => handler(rt, context);
+                }
+
                 _current = to;
-                GetNode(to)?.OnEnter?.Invoke(runtime, context);
+
+                if (toNode?.OnEnter != null)
+                {
+                    Action<IStateMachineRuntime, TransitionContext> handler = toNode.OnEnter;
+                    onEnterCallback = (rt) => handler(rt, context);
+                }
+
                 transitionEvent = new StateTransitionEvent(_regionDefinition.Name, from, to, context);
                 return true;
             }
 
-            public override void Tick(float deltaTime, StateMachineRuntime runtime, ref List<StateTransitionEvent> events)
+            public override void Tick(float deltaTime, StateMachineRuntime runtime,
+                ref List<Action<StateMachineRuntime>> tickCallbacks, ref List<StateTransitionEvent> events)
             {
-                GetNode(_current)?.OnUpdate?.Invoke(runtime, deltaTime);
+                StateNodeDefinition node = GetNode(_current);
+                if (node?.OnUpdate != null)
+                {
+                    Action<IStateMachineRuntime, float> handler = node.OnUpdate;
+                    tickCallbacks ??= new List<Action<StateMachineRuntime>>();
+                    tickCallbacks.Add((rt) => handler(rt, deltaTime));
+                }
             }
 
             private bool MatchesRule(
@@ -325,13 +410,18 @@ namespace StateMachine.Application
                 StatePath to,
                 TransitionContext context,
                 StateMachineRuntime runtime,
-                out StateTransitionEvent transitionEvent)
+                out StateTransitionEvent transitionEvent,
+                out Action<StateMachineRuntime> onExitCallback,
+                out Action<StateMachineRuntime> onEnterCallback)
             {
                 transitionEvent = default;
+                onExitCallback = null;
+                onEnterCallback = null;
+
                 if (!CanTransition(to, context, runtime))
                     return false;
 
-                Activate(to, context, runtime);
+                Activate(to, context, runtime, out onEnterCallback);
                 transitionEvent = new StateTransitionEvent(
                     _regionDefinition.Name,
                     default,
@@ -345,13 +435,16 @@ namespace StateMachine.Application
                 StatePath path,
                 TransitionContext context,
                 StateMachineRuntime runtime,
-                out StateTransitionEvent transitionEvent)
+                out StateTransitionEvent transitionEvent,
+                out Action<StateMachineRuntime> onExitCallback)
             {
                 transitionEvent = default;
+                onExitCallback = null;
+
                 if (!_active.Contains(path))
                     return false;
 
-                Deactivate(path, context, runtime);
+                Deactivate(path, context, runtime, out onExitCallback);
                 transitionEvent = new StateTransitionEvent(
                     _regionDefinition.Name,
                     path,
@@ -361,7 +454,8 @@ namespace StateMachine.Application
                 return true;
             }
 
-            public override void Tick(float deltaTime, StateMachineRuntime runtime, ref List<StateTransitionEvent> events)
+            public override void Tick(float deltaTime, StateMachineRuntime runtime,
+                ref List<Action<StateMachineRuntime>> tickCallbacks, ref List<StateTransitionEvent> events)
             {
                 if (_active.Count == 0)
                     return;
@@ -377,7 +471,12 @@ namespace StateMachine.Application
                         continue;
 
                     StateNodeDefinition node = GetNode(path);
-                    node?.OnUpdate?.Invoke(runtime, deltaTime);
+                    if (node?.OnUpdate != null)
+                    {
+                        Action<IStateMachineRuntime, float> handler = node.OnUpdate;
+                        tickCallbacks ??= new List<Action<StateMachineRuntime>>();
+                        tickCallbacks.Add((rt) => handler(rt, deltaTime));
+                    }
 
                     if (!_active.Contains(path))
                         continue;
@@ -406,7 +505,14 @@ namespace StateMachine.Application
                     if (!_active.Contains(path))
                         continue;
 
-                    Deactivate(path, TransitionContext.Empty, runtime);
+                    Deactivate(path, TransitionContext.Empty, runtime, out Action<StateMachineRuntime> onExit);
+                    // Collect deactivation callbacks for invocation outside lock
+                    if (onExit != null)
+                    {
+                        tickCallbacks ??= new List<Action<StateMachineRuntime>>();
+                        tickCallbacks.Add(onExit);
+                    }
+
                     events ??= new List<StateTransitionEvent>();
                     events.Add(new StateTransitionEvent(
                         _regionDefinition.Name,
@@ -417,24 +523,38 @@ namespace StateMachine.Application
                 }
             }
 
-            private void Activate(StatePath path, TransitionContext context, StateMachineRuntime runtime)
+            private void Activate(StatePath path, TransitionContext context, StateMachineRuntime runtime,
+                out Action<StateMachineRuntime> onEnterCallback)
             {
+                onEnterCallback = null;
                 _active.Add(path);
                 StateNodeDefinition node = GetNode(path);
                 if (context.Payload is ITransitionDurationProvider durationProvider)
                     _remainingDuration[path] = durationProvider.DurationSeconds;
                 else if (node?.DurationSeconds.HasValue == true)
                     _remainingDuration[path] = node.DurationSeconds.Value;
-                node?.OnEnter?.Invoke(runtime, context);
+
+                if (node?.OnEnter != null)
+                {
+                    Action<IStateMachineRuntime, TransitionContext> handler = node.OnEnter;
+                    onEnterCallback = (rt) => handler(rt, context);
+                }
             }
 
-            private void Deactivate(StatePath path, TransitionContext context, StateMachineRuntime runtime)
+            private void Deactivate(StatePath path, TransitionContext context, StateMachineRuntime runtime,
+                out Action<StateMachineRuntime> onExitCallback)
             {
+                onExitCallback = null;
                 if (!_active.Remove(path))
                     return;
 
                 _remainingDuration.Remove(path);
-                GetNode(path)?.OnExit?.Invoke(runtime, context);
+                StateNodeDefinition node = GetNode(path);
+                if (node?.OnExit != null)
+                {
+                    Action<IStateMachineRuntime, TransitionContext> handler = node.OnExit;
+                    onExitCallback = (rt) => handler(rt, context);
+                }
             }
 
             private bool MatchesEnterRule(StatePath to, TransitionContext context, StateMachineRuntime runtime)

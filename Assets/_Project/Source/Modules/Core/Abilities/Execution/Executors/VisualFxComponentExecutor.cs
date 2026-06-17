@@ -3,6 +3,7 @@ using AvantajPrim.Abilities.Data;
 using AvantajPrim.Abilities.Domain;
 using AvantajPrim.Abilities.Domain.Ports;
 using AvantajPrim.Abilities.Execution;
+using Cysharp.Threading.Tasks;
 using EntityId = AvantajPrim.Abilities.Domain.EntityId;
 
 namespace AvantajPrim.Abilities.Execution.Executors
@@ -11,18 +12,18 @@ namespace AvantajPrim.Abilities.Execution.Executors
     {
         public Type DataType => typeof(VisualFxComponentData);
 
-        public void Execute(
+        public UniTask ExecuteAsync(
             IAbilityComponentData data,
             AbilityExecutionContext context,
             IAbilityPresentationPort presentation,
             IEntityStatePort entityState)
         {
             if (data is not VisualFxComponentData d)
-                return;
+                return UniTask.CompletedTask;
 
             string prefabKey = d.ResolveVfxKey();
             if (string.IsNullOrEmpty(prefabKey))
-                return;
+                return UniTask.CompletedTask;
 
             EntityId targetId = ResolveVfxTarget(d.TargetType, context);
             presentation.PublishVfx(new PresentationVfxIntent(
@@ -36,6 +37,8 @@ namespace AvantajPrim.Abilities.Execution.Executors
                 d.OffsetX,
                 d.OffsetY,
                 d.OffsetZ));
+
+            return UniTask.CompletedTask;
         }
 
         internal static EntityId ResolveVfxTarget(AbilityTargetType targetType, AbilityExecutionContext context) =>

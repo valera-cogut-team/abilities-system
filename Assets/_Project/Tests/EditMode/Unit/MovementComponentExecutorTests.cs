@@ -21,7 +21,7 @@ namespace AvantajPrim.Tests.EditMode.Unit
             var data = new MovementComponentData { OffsetX = 1f, OffsetY = 0f, OffsetZ = 2f, Duration = 0.5f };
 
             var presentation = new RecordingPresentationPort();
-            executor.Execute(data, context, presentation, entityState);
+            executor.ExecuteAsync(data, context, presentation, entityState).GetAwaiter().GetResult();
 
             Assert.AreEqual(1, presentation.MovementIntents.Count);
             Assert.AreEqual(1f, presentation.MovementIntents[0].OffsetX);
@@ -46,7 +46,7 @@ namespace AvantajPrim.Tests.EditMode.Unit
                 castLifecycleId: castId);
             var data = new MovementComponentData { OffsetX = 1f, Duration = 0.5f };
 
-            executor.Execute(data, context, new RecordingPresentationPort(), entityState);
+            executor.ExecuteAsync(data, context, new RecordingPresentationPort(), entityState).GetAwaiter().GetResult();
 
             lifecycle.MarkExecutionFinished(castId);
             Assert.IsTrue(lifecycle.WaitForCompletionAsync(castId).GetAwaiter().IsCompleted);

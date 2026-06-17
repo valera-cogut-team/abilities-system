@@ -20,7 +20,7 @@ namespace AvantajPrim.Tests.EditMode.Unit
             AbilityExecutionContext context = CreateContext(new EntityId(1));
             var data = new AnimationComponentData();
 
-            executor.Execute(data, context, presentation, entityState);
+            executor.ExecuteAsync(data, context, presentation, entityState).GetAwaiter().GetResult();
 
             Assert.AreEqual(0, entityState.Transitions.Count);
             Assert.AreEqual(0, presentation.AnimationIntents.Count);
@@ -40,7 +40,7 @@ namespace AvantajPrim.Tests.EditMode.Unit
             string animationName = data.ResolveAnimationName();
             Assume.That(!string.IsNullOrEmpty(animationName), "Cast_Dash.anim addressable entry is required for this test.");
 
-            executor.Execute(data, context, presentation, entityState);
+            executor.ExecuteAsync(data, context, presentation, entityState).GetAwaiter().GetResult();
 
             Assert.AreEqual(1, entityState.Transitions.Count);
             Assert.AreEqual($"Action.Casting.{animationName}", entityState.Transitions[0].Path.Full);

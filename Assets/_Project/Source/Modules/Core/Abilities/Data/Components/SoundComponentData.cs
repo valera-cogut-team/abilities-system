@@ -12,10 +12,12 @@ namespace AvantajPrim.Abilities.Data
         public float DelaySeconds;
         public AssetReferenceT<AudioClip> SoundClip;
         public float Volume = 1f;
+        [SerializeField] private bool _isCasterScoped = true;
 
         public string ResolveClipKey() => AddressableAssetRefUtility.GetRuntimeKey(SoundClip);
 
         AbilityPlayTimeType IAbilityComponentData.PlayTimeType => PlayTimeType;
         float IAbilityComponentData.DelaySeconds => DelaySeconds;
+        bool IAbilityComponentData.IsCasterScoped => _isCasterScoped;
     }
 }

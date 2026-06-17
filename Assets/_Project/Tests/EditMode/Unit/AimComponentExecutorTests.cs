@@ -20,7 +20,7 @@ namespace AvantajPrim.Tests.EditMode.Unit
             AbilityExecutionContext context = CreateContext(casterId, targetId);
             var data = new AimComponentData { TargetType = AbilityTargetType.Enemy };
 
-            executor.Execute(data, context, presentation, null);
+            executor.ExecuteAsync(data, context, presentation, null).GetAwaiter().GetResult();
 
             Assert.AreEqual(1, presentation.AimIntents.Count);
             Assert.AreEqual(casterId, presentation.AimIntents[0].CasterId);
@@ -38,7 +38,7 @@ namespace AvantajPrim.Tests.EditMode.Unit
             AbilityExecutionContext context = CreateContext(casterId, targetId);
             var data = new AimComponentData { TargetType = AbilityTargetType.Player };
 
-            executor.Execute(data, context, presentation, null);
+            executor.ExecuteAsync(data, context, presentation, null).GetAwaiter().GetResult();
 
             Assert.AreEqual(casterId, presentation.AimIntents[0].TargetId);
         }

@@ -3,6 +3,7 @@ using AvantajPrim.Abilities.Data;
 using AvantajPrim.Abilities.Execution;
 using AvantajPrim.Abilities.Domain;
 using AvantajPrim.Abilities.Domain.Ports;
+using Cysharp.Threading.Tasks;
 using StateMachine.Facade;
 
 namespace AvantajPrim.Abilities.Execution.Executors
@@ -18,14 +19,14 @@ namespace AvantajPrim.Abilities.Execution.Executors
 
         public Type DataType => typeof(DamageComponentData);
 
-        public void Execute(
+        public UniTask ExecuteAsync(
             IAbilityComponentData data,
             AbilityExecutionContext context,
             IAbilityPresentationPort presentation,
             IEntityStatePort entityState)
         {
             if (data is not DamageComponentData d)
-                return;
+                return UniTask.CompletedTask;
 
             if (entityState.IsInState(context.TargetId, AbilityStatePaths.ActionHitReact))
                 entityState.TryTransition(context.TargetId, AbilityStatePaths.ActionNone);
@@ -45,10 +46,11 @@ namespace AvantajPrim.Abilities.Execution.Executors
                     d.ApplicationDuration,
                     d.TickInterval,
                     context.CastLifecycleId));
-                return;
+                return UniTask.CompletedTask;
             }
 
             presentation.PublishDamage(new DamageRequestedEvent(context.CasterId, context.TargetId, d.TotalValue));
+            return UniTask.CompletedTask;
         }
     }
 }

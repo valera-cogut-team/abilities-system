@@ -3,6 +3,7 @@ using AvantajPrim.Abilities.Data;
 using AvantajPrim.Abilities.Execution;
 using AvantajPrim.Abilities.Domain;
 using AvantajPrim.Abilities.Domain.Ports;
+using Cysharp.Threading.Tasks;
 using StateMachine.Facade;
 
 namespace AvantajPrim.Abilities.Execution.Executors
@@ -18,16 +19,17 @@ namespace AvantajPrim.Abilities.Execution.Executors
 
         public Type DataType => typeof(StatusEffectComponentData);
 
-        public void Execute(
+        public UniTask ExecuteAsync(
             IAbilityComponentData data,
             AbilityExecutionContext context,
             IAbilityPresentationPort presentation,
             IEntityStatePort entityState)
         {
             if (data is not StatusEffectComponentData d)
-                return;
+                return UniTask.CompletedTask;
 
             ApplyStatus(d, context, presentation, entityState, _lifecycle);
+            return UniTask.CompletedTask;
         }
 
         public static void ApplyStatus(

@@ -21,7 +21,7 @@ namespace AvantajPrim.Tests.EditMode.Unit
             AbilityExecutionContext context = CreateContext(new EntityId(1), targetId);
             var data = new DamageComponentData { TotalValue = 15f };
 
-            executor.Execute(data, context, presentation, entityState);
+            executor.ExecuteAsync(data, context, presentation, entityState).GetAwaiter().GetResult();
 
             Assert.AreEqual(1, presentation.DamageEvents.Count);
             Assert.AreEqual(15f, presentation.DamageEvents[0].TotalValue);
@@ -45,7 +45,7 @@ namespace AvantajPrim.Tests.EditMode.Unit
             };
             Assert.IsTrue(data.IsGradual);
 
-            executor.Execute(data, context, presentation, NullEntityStatePort.Instance);
+            executor.ExecuteAsync(data, context, presentation, NullEntityStatePort.Instance).GetAwaiter().GetResult();
 
             Assert.AreEqual(1, presentation.DamageEvents.Count);
             Assert.AreEqual(12f, presentation.DamageEvents[0].TotalValue);

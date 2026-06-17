@@ -20,7 +20,7 @@ namespace AvantajPrim.Tests.EditMode.Unit
             AbilityExecutionContext context = CreateContext(casterId);
             var data = new LockInputComponentData { BlockMovement = true };
 
-            executor.Execute(data, context, new RecordingPresentationPort(), entityState);
+            executor.ExecuteAsync(data, context, new RecordingPresentationPort(), entityState).GetAwaiter().GetResult();
 
             Assert.AreEqual(1, entityState.Transitions.Count);
             Assert.AreEqual("Input.Movement", entityState.Transitions[0].Path.Full);
@@ -36,7 +36,7 @@ namespace AvantajPrim.Tests.EditMode.Unit
             AbilityExecutionContext context = CreateContext(casterId);
             var data = new LockInputComponentData { BlockMovement = false, BlockRotation = true };
 
-            executor.Execute(data, context, new RecordingPresentationPort(), entityState);
+            executor.ExecuteAsync(data, context, new RecordingPresentationPort(), entityState).GetAwaiter().GetResult();
 
             Assert.AreEqual(1, entityState.Transitions.Count);
             Assert.AreEqual("Input.Rotation", entityState.Transitions[0].Path.Full);
@@ -51,7 +51,7 @@ namespace AvantajPrim.Tests.EditMode.Unit
             AbilityExecutionContext context = CreateContext(casterId);
             var data = new LockInputComponentData { BlockMovement = false, BlockRotation = true };
 
-            executor.Execute(data, context, new RecordingPresentationPort(), entityState);
+            executor.ExecuteAsync(data, context, new RecordingPresentationPort(), entityState).GetAwaiter().GetResult();
 
             Assert.AreEqual(1, entityState.Transitions.Count);
             Assert.AreEqual("Input.Rotation", entityState.Transitions[0].Path.Full);
@@ -66,7 +66,7 @@ namespace AvantajPrim.Tests.EditMode.Unit
             AbilityExecutionContext context = CreateContext(new EntityId(1));
             var data = new LockInputComponentData { BlockMovement = false, BlockRotation = false };
 
-            executor.Execute(data, context, new RecordingPresentationPort(), entityState);
+            executor.ExecuteAsync(data, context, new RecordingPresentationPort(), entityState).GetAwaiter().GetResult();
 
             Assert.AreEqual(0, entityState.Transitions.Count);
         }

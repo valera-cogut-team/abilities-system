@@ -1,6 +1,6 @@
 using System;
 using AvantajPrim.Abilities.Domain;
-using UnityEngine.Serialization;
+using UnityEngine;
 
 namespace AvantajPrim.Abilities.Data
 {
@@ -14,9 +14,11 @@ namespace AvantajPrim.Abilities.Data
         public float TickValue = AbilityConstants.ComponentDefaults.DefaultDamageValue;
         public float ApplicationDuration;
         public float TickInterval = 1f;
+        [SerializeField] private bool _isCasterScoped;
 
         AbilityPlayTimeType IAbilityComponentData.PlayTimeType => PlayTimeType;
         float IAbilityComponentData.DelaySeconds => DelaySeconds;
+        bool IAbilityComponentData.IsCasterScoped => _isCasterScoped;
 
         public bool IsGradual => ApplicationDuration > 0f && TickValue > 0f;
     }
