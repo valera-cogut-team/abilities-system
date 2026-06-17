@@ -133,6 +133,8 @@ namespace Bootstrap
 
         public void Shutdown()
         {
+            _moduleManager.ShutdownAll();
+
             _moduleContext = null;
             _moduleManager = null;
         }
